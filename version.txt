@@ -1,0 +1,3 @@
+v1.4.2
+Build: 12345
+Commit: abcd1234

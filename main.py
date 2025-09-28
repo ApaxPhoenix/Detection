@@ -8,7 +8,7 @@ from typing import Dict, Type
 from trainer import Trainer
 import modules
 
-# Set up logging so we can track what's happening during training
+# Configure logging system for training pipeline monitoring
 configuration = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -16,7 +16,7 @@ configuration = {
         "standard": {"format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"},
     },
     "handlers": {
-        # This handles the main app messages
+        # Application-level message handling
         "main": {
             "level": "INFO",
             "formatter": "standard",
@@ -24,7 +24,7 @@ configuration = {
             "filename": "main.log",
             "mode": "w",
         },
-        # This tracks data loading stuff
+        # Dataset loading operation logs
         "loader": {
             "level": "INFO",
             "formatter": "standard",
@@ -32,7 +32,7 @@ configuration = {
             "filename": "loader.log",
             "mode": "w",
         },
-        # This logs what the modules are doing
+        # Model architecture operation logs
         "modules": {
             "level": "INFO",
             "formatter": "standard",
@@ -40,7 +40,7 @@ configuration = {
             "filename": "modules.log",
             "mode": "w",
         },
-        # This keeps track of the actual training process
+        # Training process monitoring
         "trainer": {
             "level": "INFO",
             "formatter": "standard",
@@ -50,18 +50,18 @@ configuration = {
         },
     },
     "loggers": {
-        # Main app logger
+        # Main application logger
         "main": {"handlers": ["main"], "level": "INFO", "propagate": False},
         # Data loading logger
         "loader": {"handlers": ["loader"], "level": "INFO", "propagate": False},
-        # Module logger
+        # Module operation logger
         "modules": {"handlers": ["modules"], "level": "INFO", "propagate": False},
-        # Training logger
+        # Training process logger
         "trainer": {"handlers": ["trainer"], "level": "INFO", "propagate": False},
     },
 }
 
-# All the different object detection models we can use
+# Available object detection model architectures
 modules: Dict[str, Type[nn.Module]] = {
     "retinanet": modules.RetinaNet,
     "ssd": modules.SSD,
@@ -72,64 +72,63 @@ modules: Dict[str, Type[nn.Module]] = {
 }
 
 if __name__ == "__main__":
-    # Get logging up and running first
+    # Initialize logging system
     logging.config.dictConfig(configuration)
     logger = logging.getLogger("main")
-    logger.info("Firing up the object detection trainer...")
+    logger.info("Initializing object detection training pipeline")
 
-    # Set up all the command line options
+    # Configure command line argument parser
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
-        description="Train different object detection models with PyTorch"
+        description="Train object detection models using PyTorch framework"
     )
 
-    # Which model do you want to use?
+    # Model architecture selection
     parser.add_argument(
         "-m",
         "--modules",
         type=str,
         required=True,
         metavar="...",
-        help=f"Pick your model architecture. Options: {', '.join(modules.keys())}",
+        help=f"Choose detection model architecture: {', '.join(modules.keys())}",
     )
 
-    # Should we use pre-trained weights?
+    # Pre-trained weight initialization
     parser.add_argument(
         "-w",
         "--weights",
         type=bool,
         default=True,
         metavar="...",
-        help="Use pre-trained weights? (Default: True)",
+        help="Initialize with pre-trained weights (recommended)",
     )
 
-    # How many classes are we detecting?
+    # Dataset configuration
     parser.add_argument(
         "-c",
         "--classes",
         type=int,
         required=True,
         metavar="...",
-        help="Number of different object types to detect",
+        help="Number of object classes to detect",
     )
 
-    # Image channels (usually 3 for color images)
     parser.add_argument(
         "-ch",
         "--channels",
         type=int,
         default=3,
         metavar="...",
-        help="Input channels (3 for RGB, 1 for grayscale)",
+        help="Input image channels (3 for RGB, 1 for grayscale)",
     )
 
-    # Where's our training data?
+    # Dataset path configuration
     parser.add_argument(
         "-tp",
         "--training-path",
         type=Path,
         required=True,
         metavar="...",
-        help="Path to your training dataset folder",
+        help="Directory containing training dataset",
     )
 
     parser.add_argument(
@@ -138,7 +137,7 @@ if __name__ == "__main__":
         type=Path,
         required=True,
         metavar="...",
-        help="Path to your validation dataset folder",
+        help="Directory containing validation dataset",
     )
 
     parser.add_argument(
@@ -147,20 +146,20 @@ if __name__ == "__main__":
         type=Path,
         default=None,
         metavar="...",
-        help="Path to test dataset (optional)",
+        help="Directory containing test dataset (optional)",
     )
 
-    # Got existing weights to load?
+    # Model checkpoint loading
     parser.add_argument(
         "-wp",
         "--weights-path",
         type=Path,
         default=None,
         metavar="...",
-        help="Path to existing model weights (optional)",
+        help="Path to existing model checkpoint (optional)",
     )
 
-    # What size images are we working with?
+    # Image processing parameters
     parser.add_argument(
         "-d",
         "--dimensions",
@@ -168,17 +167,17 @@ if __name__ == "__main__":
         nargs=2,
         default=(800, 800),
         metavar="...",
-        help="Image size as width height",
+        help="Input image dimensions as width height",
     )
 
-    # Training settings
+    # Training hyperparameters
     parser.add_argument(
         "-e",
         "--epochs",
         type=int,
         default=25,
         metavar="...",
-        help="How many times to go through the dataset",
+        help="Number of training epochs",
     )
 
     parser.add_argument(
@@ -187,7 +186,7 @@ if __name__ == "__main__":
         type=int,
         default=64,
         metavar="...",
-        help="How many images to process at once",
+        help="Training batch size",
     )
 
     parser.add_argument(
@@ -196,7 +195,7 @@ if __name__ == "__main__":
         type=float,
         default=0.0001,
         metavar="...",
-        help="How fast the model learns",
+        help="Optimizer learning rate",
     )
 
     parser.add_argument(
@@ -205,7 +204,7 @@ if __name__ == "__main__":
         type=int,
         default=4,
         metavar="...",
-        help="Number of CPU workers for data loading",
+        help="Number of data loading worker processes",
     )
 
     parser.add_argument(
@@ -214,17 +213,17 @@ if __name__ == "__main__":
         type=int,
         default=None,
         metavar="...",
-        help="Random seed for consistent results",
+        help="Random seed for reproducible training",
     )
 
-    # Advanced training tweaks
+    # Advanced optimization parameters
     parser.add_argument(
         "-wd",
         "--weight-decay",
         type=float,
         default=None,
         metavar="...",
-        help="Weight decay to prevent overfitting",
+        help="L2 regularization weight decay factor",
     )
 
     parser.add_argument(
@@ -233,7 +232,7 @@ if __name__ == "__main__":
         type=float,
         default=None,
         metavar="...",
-        help="Learning rate scheduler gamma",
+        help="Learning rate scheduler decay factor",
     )
 
     parser.add_argument(
@@ -242,47 +241,47 @@ if __name__ == "__main__":
         type=float,
         default=None,
         metavar="...",
-        help="Optimizer momentum",
+        help="SGD optimizer momentum parameter",
     )
 
-    # Object detection specific stuff
+    # Object detection specific configuration
     parser.add_argument(
         "-th",
         "--threshold",
         type=float,
         default=0.5,
         metavar="...",
-        help="IoU threshold for filtering detections",
+        help="IoU threshold for detection filtering",
     )
 
-    # Where to save the final model
+    # Output configuration
     parser.add_argument(
         "-o",
         "--output",
         type=Path,
         metavar="...",
-        help="Where to save your trained model",
+        help="Output path for saving trained model",
     )
 
-    # Get all the arguments the user provided
+    # Parse command line arguments
     args: argparse.Namespace = parser.parse_args()
-    logger.info("Got all the command line arguments")
+    logger.info("Command line arguments processed successfully")
 
-    # Make sure they picked a valid model
+    # Validate model architecture selection
     if args.modules not in modules:
         types: str = ", ".join(modules.keys())
         logger.warning(
-            f"'{args.modules}' isn't a valid model. Try one of these: {types}"
+            f"Invalid model '{args.modules}' specified. Available options: {types}"
         )
         warnings.warn(
-            f"'{args.modules}' isn't available. Valid options: {types}",
+            f"Model '{args.modules}' not available. Valid options: {types}",
             UserWarning,
         )
     else:
-        logger.info(f"Using {args.modules} model")
+        logger.info(f"Selected detection model: {args.modules}")
 
-    # Create the model
-    logger.info("Setting up the model...")
+    # Initialize model instance
+    logger.info("Creating model architecture")
     try:
         module: nn.Module = modules[args.modules](
             classes=args.classes,
@@ -290,14 +289,14 @@ if __name__ == "__main__":
             weights=args.weights,
         )
         logger.info(
-            f"Model ready! {args.modules} configured for {args.classes} classes"
+            f"Model initialized successfully: {args.modules} with {args.classes} detection classes"
         )
     except Exception as error:
-        logger.error(f"Couldn't create the model: {str(error)}")
-        raise Exception(f"Model setup failed: {str(error)}", RuntimeWarning)
+        logger.error(f"Model initialization failed: {str(error)}")
+        raise Exception(f"Unable to create model: {str(error)}", RuntimeWarning)
 
-    # Set up the trainer
-    logger.info("Getting the trainer ready...")
+    # Configure training pipeline
+    logger.info("Setting up training controller")
     try:
         trainer: Trainer = Trainer(
             module=module,
@@ -315,42 +314,42 @@ if __name__ == "__main__":
             workers=args.workers,
             seed=args.seed,
         )
-        logger.info("Trainer is locked and loaded")
+        logger.info("Training pipeline configured and ready")
     except Exception as error:
-        logger.error(f"Trainer setup failed: {str(error)}")
-        raise Exception(f"Couldn't initialize trainer: {str(error)}", RuntimeWarning)
+        logger.error(f"Trainer initialization error: {str(error)}")
+        raise Exception(f"Training setup failed: {str(error)}", RuntimeWarning)
 
-    # Let's start training!
-    logger.info("Starting the training process...")
+    # Execute training phase
+    logger.info("Beginning model training process")
     try:
         asyncio.run(trainer.train())
-        logger.info("Training finished successfully!")
+        logger.info("Training phase completed successfully")
     except Exception as error:
-        logger.error(f"Training crashed: {str(error)}")
-        warnings.warn(f"Training didn't work: {str(error)}", RuntimeWarning)
+        logger.error(f"Training process failed: {str(error)}")
+        warnings.warn(f"Training interrupted: {str(error)}", RuntimeWarning)
 
-    # Test the model if we have test data
+    # Run evaluation on test set if available
     if args.testing_path is not None:
-        logger.info("Running tests on the trained model...")
+        logger.info("Evaluating trained model on test dataset")
         try:
             asyncio.run(trainer.test())
-            logger.info("Testing complete!")
+            logger.info("Model evaluation completed")
         except Exception as error:
-            logger.error(f"Testing failed: {str(error)}")
-            warnings.warn(f"Testing didn't work: {str(error)}", RuntimeWarning)
+            logger.error(f"Testing phase failed: {str(error)}")
+            warnings.warn(f"Evaluation error: {str(error)}", RuntimeWarning)
     else:
-        logger.info("No test data provided, skipping tests")
+        logger.info("Test dataset not provided - skipping evaluation phase")
 
-    # Save the model if they want us to
+    # Save trained model weights
     if args.output:
-        logger.info(f"Saving the trained model to {args.output}...")
+        logger.info(f"Saving trained model to {args.output}")
         try:
             trainer.save(filepath=args.output)
-            logger.info("Model saved!")
+            logger.info("Model weights saved successfully")
         except Exception as error:
-            logger.error(f"Couldn't save the model: {str(error)}")
-            warnings.warn(f"Model saving failed: {str(error)}", RuntimeWarning)
+            logger.error(f"Model saving failed: {str(error)}")
+            warnings.warn(f"Unable to save model: {str(error)}", RuntimeWarning)
     else:
-        logger.warning("No save path provided - your model won't be saved")
+        logger.warning("Output path not specified - trained model will not be saved")
 
-    logger.info("All done! Check your logs for details.")
+    logger.info("Object detection training pipeline execution completed")

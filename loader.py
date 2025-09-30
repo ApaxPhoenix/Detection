@@ -63,6 +63,17 @@ class DatasetLoader(Dataset):
 
     The annotations need to be in Pascal VOC XML format (the standard format
     that most annotation tools export to).
+
+    Expected directory structure:
+        dataset/
+        ├── images/
+        │   ├── image001.jpg
+        │   ├── image002.png
+        │   └── ...
+        └── annotations/
+            ├── image001.xml
+            ├── image002.xml
+            └── ...
     """
 
     def __init__(
@@ -70,17 +81,6 @@ class DatasetLoader(Dataset):
     ) -> None:
         """
         Set up the dataset by finding all matching image and annotation files.
-
-        Your folder should look like this:
-        - your_dataset/
-            - images/
-                - photo1.jpg
-                - photo2.png
-                - ...
-            - annotations/
-                - photo1.xml
-                - photo2.xml
-                - ...
 
         Args:
             dirpath: Path to your dataset folder (should contain 'images' and 'annotations')
@@ -168,7 +168,6 @@ class DatasetLoader(Dataset):
             A tuple with:
             - The image as a tensor
             - A dictionary with 'boxes', 'labels', and 'scores'
-
             Returns None if something went wrong loading this item
         """
         # Get the file paths for this index
@@ -179,7 +178,6 @@ class DatasetLoader(Dataset):
         try:
             # Load and transform the image
             image: Image.Image = Image.open(fp=image)
-
             if self.transform:
                 image: Union[Image.Image, torch.Tensor] = self.transform(img=image)
 

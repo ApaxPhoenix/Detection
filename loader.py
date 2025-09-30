@@ -16,21 +16,18 @@ logger = logging.getLogger("loader")
 def collate_fn(
         batch: List[Tuple[torch.Tensor, Dict[str, Any]]],
 ) -> Union[Tuple[Tensor, list[Tensor]], None]:
-    """
-    Combines a bunch of samples into a batch for training.
-
-    So here's the deal - when you're doing object detection, each image might have
-    a different number of objects in it. Some have 1 car, others have 5 people and
-    2 dogs. This function takes all those different samples and packages them up
-    nicely for the model to process.
-
+    """Aggregates individual samples into batched tensors for model training.
+    
+    Filters out samples where image loading has failed and constructs 
+    properly formatted batch tensors from the remaining valid data points.
+    
     Args:
-        batch: A list of (image, annotations) pairs that we want to combine
-
+        batch: Collection of (image, mask) tuples where unsuccessful 
+               load operations are represented as None.
+    
     Returns:
-        Either a nice batch ready for training, or None if everything failed to load
-        The batch contains all the images stacked together and a list of all the
-        annotation dictionaries
+        Batched tensors suitable for PyTorch model consumption, or None 
+        if no valid samples exist in the input collection.
     """
     # Toss out any samples that failed to load
     batch: List[Tuple[torch.Tensor, Dict[str, Any]]] = [
@@ -218,3 +215,4 @@ class DatasetLoader(Dataset):
             logger.error(f"Failed to load item {index} ({image}): {str(error)}")
             warnings.warn(f"Couldn't load item {index}: {str(error)}")
             return None
+

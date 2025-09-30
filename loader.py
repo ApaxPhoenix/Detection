@@ -14,39 +14,36 @@ logger = logging.getLogger("loader")
 
 
 def collate_fn(
-        batch: List[Tuple[torch.Tensor, Dict[str, Any]]],
-) -> Union[Tuple[Tensor, list[Tensor]], None]:
-    """Aggregates individual samples into batched tensors for model training.
-    
-    Filters out samples where image loading has failed and constructs 
-    properly formatted batch tensors from the remaining valid data points.
-    
-    Args:
-        batch: Collection of (image, mask) tuples where unsuccessful 
-               load operations are represented as None.
-    
-    Returns:
-        Batched tensors suitable for PyTorch model consumption, or None 
-        if no valid samples exist in the input collection.
-    """
-    # Toss out any samples that failed to load
-    batch: List[Tuple[torch.Tensor, Dict[str, Any]]] = [
-        item for item in batch if item is not None
-    ]
+        batch: List[Tuple[torch.Tensor, torch.Tensor]],
+) -> Union[Tuple[torch.Tensor, torch.Tensor], None]:
+    """Combines individual data samples into a single batch for training.
 
-    # If everything failed, just give up on this batch
+    Images sometimes fail to load and return None. This function removes
+    failed samples and stacks successful ones into proper batch tensors
+    that PyTorch can work with.
+
+    Args:
+        batch: Collection of (image, mask) pairs. Failed samples will be None.
+
+    Returns:
+        Batch tensors ready for model training, or None if all samples failed.
+    """
+    # Remove any samples that failed during loading
+    batch: List[Tuple[torch.Tensor, torch.Tensor]] = [item for item in batch if item is not None]
+
+    # Check if we lost everything
     if not batch:
-        warnings.warn(message="Yikes! Every single item in this batch failed to load")
-        logger.warning("Total batch failure - nothing loaded properly")
+        warnings.warn(message="Complete batch failure - no samples loaded successfully")
+        logger.warning("All samples in batch returned None")
         return None
 
-    # Split the images and annotations into separate lists
+    # Split images and masks for separate stacking
     images: Tuple[torch.Tensor, ...]
-    targets: Tuple[torch.Tensor, ...]
-    images, targets = zip(*batch)
+    masks: Tuple[torch.Tensor, ...]
+    images, masks = zip(*batch)
 
-    # Stack all the images together and return everything
-    return torch.stack(tensors=images), list(targets)
+    # Combine into batch tensors
+    return torch.stack(tensors=images), torch.stack(tensors=masks)
 
 
 class DatasetLoader(Dataset):
@@ -215,4 +212,5 @@ class DatasetLoader(Dataset):
             logger.error(f"Failed to load item {index} ({image}): {str(error)}")
             warnings.warn(f"Couldn't load item {index}: {str(error)}")
             return None
+
 

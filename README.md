@@ -4,26 +4,25 @@ A PyTorch framework for training object detection models. This repo gives you a 
 
 ## Supported Models
 
-- **RetinaNet** - Single-stage detector using focal loss to deal with class imbalance
+- **RetinaNet** - Single-stage detector that uses focal loss for class imbalance
 - **Faster R-CNN** - Two-stage detector with region proposals
-- **SSD** (Single Shot Detector) - Fast single-stage approach with multi-scale features
+- **SSD** (Single Shot Detector) - Fast single-stage with multi-scale features
 - **FCOS** (Fully Convolutional One-Stage) - Anchor-free detection
-- **MobileFasterRCNN** - Lighter Faster R-CNN for mobile use
-- **SSDLite** - Efficient SSD using depthwise separable convolutions
+- **MobileFasterRCNN** - Lightweight Faster R-CNN for mobile
+- **SSDLite** - Efficient SSD with depthwise separable convolutions
 
-## What's Included
+## What You Get
 
-- One training pipeline that works across all architectures
-- Pre-trained weights support for transfer learning
-- Logging split across different components (makes debugging way easier)
-- Command-line config for everything
-- Automatic checkpointing and evaluation
-- Works with custom datasets at any resolution
-- Built-in validation and testing
+- Single pipeline for all six architectures
+- Transfer learning with pre-trained weights
+- Separate log files for each component (trust me, this helps)
+- Configure everything from the command line
+- Auto-saves checkpoints and runs validation
+- Handles any image size and custom datasets
 
 ## Setup
 
-You'll need PyTorch and the usual suspects:
+Install the dependencies:
 
 ```bash
 pip install torch torchvision numpy
@@ -42,73 +41,42 @@ python main.py \
   --output ./models/trained_model.pt
 ```
 
-### All the Options
+### Command Line Arguments
 
 #### Model Setup
-- `--modules` - Pick your architecture (required)
-- `--classes` - How many object classes you're detecting (required)
-- `--channels` - Image channels, usually 3 for RGB
-- `--weights` - Load pre-trained weights (on by default)
+- `--modules` - Which architecture to use (required)
+- `--classes` - Number of object classes (required)
+- `--channels` - Input channels, typically 3 for RGB
+- `--weights` - Use pre-trained weights (enabled by default)
 
-#### Where Your Data Lives
-- `--training-path` - Training data folder (required)
-- `--validation-path` - Validation data folder (required)
-- `--testing-path` - Test data if you have it
-- `--weights-path` - Existing checkpoint to continue from
+#### Data Paths
+- `--training-path` - Where your training data lives (required)
+- `--validation-path` - Where your validation data lives (required)
+- `--testing-path` - Where your test data lives
+- `--weights-path` - Path to checkpoint if resuming training
 
-#### Training Settings
-- `--epochs` - Training epochs (default: 25)
-- `--batch-size` - Batch size (default: 64)
-- `--learning-rate` - Starting LR (default: 0.0001)
+#### Training Parameters
+- `--epochs` - How long to train (default: 25)
+- `--batch-size` - Samples per batch (default: 64)
+- `--learning-rate` - Initial learning rate (default: 0.0001)
 - `--dimensions` - Image size as width height (default: 800 800)
-- `--workers` - Data loading threads (default: 4)
-- `--seed` - Set this for reproducible runs
+- `--workers` - Number of data loading threads (default: 4)
+- `--seed` - Random seed for reproducibility
 
-#### If You Want to Get Fancy
-- `--weight-decay` - L2 regularization
-- `--gamma` - LR decay rate
-- `--momentum` - For SGD
+#### Advanced Options
+- `--weight-decay` - L2 regularization strength
+- `--gamma` - Learning rate decay factor
+- `--momentum` - Momentum for SGD
 - `--threshold` - IoU threshold for detections (default: 0.5)
-
-### Real Example
-
-```bash
-python main.py \
-  --modules fasterrcnn \
-  --classes 20 \
-  --training-path ./datasets/train \
-  --validation-path ./datasets/val \
-  --testing-path ./datasets/test \
-  --dimensions 1024 1024 \
-  --epochs 50 \
-  --batch-size 32 \
-  --learning-rate 0.001 \
-  --weight-decay 0.0005 \
-  --momentum 0.9 \
-  --workers 8 \
-  --seed 42 \
-  --output ./model.pt
-```
-
-## What Happens During Training
-
-Pretty straightforward flow:
-
-1. Model gets initialized with your settings
-2. Data loaders spin up for training and validation
-3. Training loop runs with automatic gradient updates
-4. Validation happens after each epoch
-5. Optional test evaluation at the end
-6. Best weights get saved based on validation performance
 
 ## Logging
 
-Logs are split into four files so you're not hunting through one massive log:
+Logs get written to four separate files:
 
-- `main.log` - Overall flow and status
-- `loader.log` - Data loading stuff
-- `modules.log` - Model operations
-- `trainer.log` - Training metrics and performance
+- `main.log` - High-level program flow
+- `loader.log` - Data loading operations
+- `modules.log` - Model-specific operations
+- `trainer.log` - Training progress and metrics
 
 ## Structure
 
@@ -127,11 +95,11 @@ Logs are split into four files so you're not hunting through one massive log:
 - torchvision
 - NumPy
 
-## Things Worth Knowing
+## Notes
 
-Pre-trained weights load automatically when available. This usually helps a lot, especially if you don't have tons of training data.
+Pre-trained weights load automatically when you have them. They're especially useful when you're working with smaller datasets.
 
-Each model comes with sensible defaults, but you'll probably want to tweak things based on your dataset and how much compute you have available.
+The defaults work well enough to get started, but you'll want to tune them based on your specific dataset and hardware.
 
 ## License
 

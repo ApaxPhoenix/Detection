@@ -38,7 +38,7 @@ python main.py \
   --classes 80 \
   --training-path ./data/train \
   --validation-path ./data/val \
-  --output ./models/trained_model.pt
+  --output ./models/model.pt
 ```
 
 ### Command Line Arguments
